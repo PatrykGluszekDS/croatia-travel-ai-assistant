@@ -7,7 +7,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI()
 
 
 SYSTEM_PROMPT = """
@@ -23,16 +23,21 @@ Keep answers friendly, practical, and clear.
 
 
 def chat(message, history):
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages = []
 
-    for user_msg, assistant_msg in history:
-        messages.append({"role": "user", "content": user_msg})
-        messages.append({"role": "assistant", "content": assistant_msg})
+    for item in history:
+        if isinstance(item, dict):
+            role = item.get("role")
+            content = item.get("content")
+
+            if role in ["user", "assistant"] and isinstance(content, str):
+                messages.append({"role": role, "content": content})
 
     messages.append({"role": "user", "content": message})
 
     response = client.responses.create(
         model="gpt-5.5",
+        instructions=SYSTEM_PROMPT,
         input=messages,
     )
 
@@ -41,6 +46,7 @@ def chat(message, history):
 
 demo = gr.ChatInterface(
     fn=chat,
+    type="messages",
     title="Croatia Travel AI Assistant",
     description="Ask for Croatia travel ideas, itineraries, and practical tips.",
     examples=[

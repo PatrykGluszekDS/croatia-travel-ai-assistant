@@ -143,6 +143,10 @@ chat_demo = gr.ChatInterface(
         ["Plan me a simple 2-day trip to Split using local Ollama.", "Ollama"],
     ],
     additional_inputs=[model_provider_input],
+    additional_inputs_accordion=gr.Accordion(
+        label="Model settings",
+        open=True,
+    )
 )
 
 

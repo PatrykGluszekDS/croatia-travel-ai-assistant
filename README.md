@@ -6,6 +6,19 @@ Croatia Travel AI Assistant is a portfolio project for practicing LLM applicatio
 
 The app helps users plan trips to Croatia using an AI assistant, a local SQLite database, OpenAI tool calling, image generation, and audio route briefings.
 
+## What this project demonstrates
+
+This project demonstrates practical LLM application development, including:
+
+* building a multi-tab Gradio app
+* using OpenAI API for chat, image generation, and text-to-speech
+* adding local Ollama model support
+* connecting an LLM to SQLite data through tool calling
+* managing a Python project with uv
+* writing basic tests with pytest
+* running automated tests with GitHub Actions
+
+
 ## Features
 
 ### Chat assistant
@@ -133,6 +146,18 @@ croatia-travel-ai-assistant/
 └── generated_audio/             # generated locally, not committed
 ```
 
+## Prerequisites
+
+To run the full project locally, you need:
+
+* Python
+* uv
+* an OpenAI API key
+* Ollama installed locally, only if you want to use the Ollama chat provider
+
+The OpenAI features require a valid `OPENAI_API_KEY`. Image generation and text-to-speech availability may depend on the models available for your OpenAI account.
+
+
 ## Setup
 
 Clone the repository:
@@ -237,6 +262,16 @@ Transport preference: flexible / best overall option
 Travel style: balanced
 ```
 
+## Running tests
+
+This project includes basic tests for the SQLite database and tool-calling logic.
+
+Run tests with:
+
+```bash
+uv run pytest
+```
+
 ## Current limitations
 
 - The database contains sample travel packages, not real commercial offers.
@@ -248,17 +283,10 @@ Travel style: balanced
 
 ## Possible improvements
 
-- Add more realistic sample travel packages
-- Improve the database schema
-- Add saved user preferences
-
-
-## Running tests
-
-This project includes basic tests for the SQLite database and tool-calling logic.
-
-Run tests with:
-
-```bash
-uv run pytest
-```
+* Add more realistic travel package data
+* Improve the database schema with more destinations, seasons, and transport options
+* Add saved user preferences
+* Add tool calling support for Ollama mode
+* Add external APIs for live transport information
+* Add deployment instructions
+* Refactor the app into a larger package structure

@@ -12,6 +12,15 @@ The main chatbot helps users with Croatia travel planning. It can suggest destin
 
 The chat supports conversation history, so the assistant can remember previous messages during the current session.
 
+### OpenAI and Ollama model providers
+
+The chat assistant supports two model providers:
+
+- **OpenAI** — cloud model with SQLite tool calling support
+- **Ollama** — local model running on the user's machine
+
+OpenAI mode can use the SQLite database through tool calling. Ollama mode is used for local text generation and does not use the database tools.
+
 ### SQLite travel package database
 
 The project includes a local SQLite database with sample Croatia travel packages.
@@ -77,6 +86,7 @@ The route briefing is intended as general travel guidance and does not provide l
 - Python
 - OpenAI API
 - Gradio
+- Ollama
 - SQLite
 - uv
 - python-dotenv
@@ -135,6 +145,16 @@ uv run app.py
 ```
 
 Then open the local Gradio URL shown in the terminal.
+
+## Optional: Ollama setup
+
+To use the local Ollama chat provider, install and run Ollama on your machine.
+
+Pull the local model used by the app:
+
+```bash
+ollama pull llama3.2:1b
+```
 
 ## Environment and dependency management
 
@@ -201,6 +221,8 @@ Travel style: balanced
 - The route planner does not use live flight, train, bus, ferry, or traffic APIs.
 - Prices and travel times should be treated as approximate unless verified with current sources.
 - Generated images and audio are stored locally and ignored by Git.
+- Ollama mode currently supports local chat only and does not use SQLite tool calling.
+- The quality of Ollama responses depends on the local model. The default `llama3.2:1b` model is lightweight but weaker than larger models.
 
 ## Possible improvements
 

@@ -1,5 +1,7 @@
 # Croatia Travel AI Assistant
 
+![Tests](https://github.com/PatrykGluszekDS/croatia-travel-ai-assistant/actions/workflows/tests.yml/badge.svg)
+
 Croatia Travel AI Assistant is a portfolio project for practicing LLM application development with Python.
 
 The app helps users plan trips to Croatia using an AI assistant, a local SQLite database, OpenAI tool calling, image generation, and audio route briefings.

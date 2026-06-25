@@ -6,6 +6,7 @@ from openai import OpenAI
 
 from database import get_packages_by_destination, initialize_database
 from tools import TOOLS, call_tool
+from image_generation import generate_destination_image
 
 
 load_dotenv()
@@ -145,7 +146,7 @@ def chat(message, history):
     return final_response.output_text
 
 
-demo = gr.ChatInterface(
+chat_demo = gr.ChatInterface(
     fn=chat,
     title="Croatia Travel AI Assistant",
     description="Ask for Croatia travel ideas, itineraries, and practical tips.",
@@ -156,6 +157,59 @@ demo = gr.ChatInterface(
         "I want hidden gems near Zadar.",
     ],
 )
+
+
+with gr.Blocks(title="Croatia Travel AI Assistant") as demo:
+    gr.Markdown("# Croatia Travel AI Assistant")
+
+    with gr.Tab("Chat assistant"):
+        chat_demo.render()
+
+    with gr.Tab("Image generator"):
+        gr.Markdown(
+            "Generate a destination-style image for a Croatian travel idea."
+        )
+
+        destination_input = gr.Textbox(
+            label="Destination",
+            placeholder="Example: Split, Dubrovnik, Krk, Zadar, Istria",
+        )
+
+        style_input = gr.Dropdown(
+            label="Visual style",
+            choices=[
+                "realistic travel photography",
+                "vintage travel poster",
+                "watercolor illustration",
+                "cinematic tourism campaign",
+            ],
+            value="vintage travel poster",
+        )
+
+        mood_input = gr.Dropdown(
+            label="Mood",
+            choices=[
+                "romantic",
+                "relaxed",
+                "adventurous",
+                "luxury",
+                "family-friendly",
+            ],
+            value="relaxed",
+        )
+
+        generate_button = gr.Button("Generate image")
+
+        image_output = gr.Image(
+            label="Generated image",
+            type="filepath",
+        )
+
+        generate_button.click(
+            fn=generate_destination_image,
+            inputs=[destination_input, style_input, mood_input],
+            outputs=image_output,
+        )
 
 
 if __name__ == "__main__":

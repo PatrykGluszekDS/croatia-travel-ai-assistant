@@ -134,9 +134,89 @@ def get_packages_by_destination(destination):
     return "\n\n".join(results)
 
 
+def search_travel_packages(
+    destination=None,
+    region=None,
+    travel_style=None,
+    max_price_eur=None,
+    duration_days=None,
+):
+    """
+    Search travel packages using optional filters.
+
+    Any filter can be skipped.
+    For example:
+    - search_travel_packages(travel_style="romantic")
+    - search_travel_packages(max_price_eur=500)
+    - search_travel_packages(region="Dalmatia", duration_days=3)
+    """
+
+    query = """
+        SELECT destination, region, duration_days, travel_style, description, estimated_price_eur
+        FROM travel_packages
+        WHERE 1 = 1
+    """
+
+    params = []
+
+    if destination:
+        query += " AND LOWER(destination) = LOWER(?)"
+        params.append(destination)
+
+    if region:
+        query += " AND LOWER(region) = LOWER(?)"
+        params.append(region)
+
+    if travel_style:
+        query += " AND LOWER(travel_style) LIKE LOWER(?)"
+        params.append(f"%{travel_style}%")
+
+    if max_price_eur:
+        query += " AND estimated_price_eur <= ?"
+        params.append(max_price_eur)
+
+    if duration_days:
+        query += " AND duration_days = ?"
+        params.append(duration_days)
+
+    query += " ORDER BY estimated_price_eur ASC"
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+
+    if not rows:
+        return "No matching travel packages found."
+
+    results = []
+
+    for row in rows:
+        destination, region, duration_days, travel_style, description, price = row
+
+        results.append(
+            f"Destination: {destination}\n"
+            f"Region: {region}\n"
+            f"Duration: {duration_days} days\n"
+            f"Style: {travel_style}\n"
+            f"Description: {description}\n"
+            f"Estimated price: €{price}"
+        )
+
+    return "\n\n".join(results)
+
+
 if __name__ == "__main__":
     initialize_database()
 
     print("Database initialized successfully.")
     print()
     print(get_packages_by_destination("Split"))
+
+    print()
+    print("Romantic packages:")
+    print(search_travel_packages(travel_style="romantic"))
+
+    print()
+    print("Packages under 500 EUR:")
+    print(search_travel_packages(max_price_eur=500))

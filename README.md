@@ -81,6 +81,26 @@ The app generates:
 
 The route briefing is intended as general travel guidance and does not provide live timetables, ticket prices, or real-time availability.
 
+## Screenshots
+
+### Chat assistant
+
+The chat assistant can answer Croatia travel questions and use SQLite-backed OpenAI tool calling to search local travel package data.
+
+![Chat assistant](docs/screenshots/chat-assistant.png)
+
+### Image generator
+
+The image generator creates travel-style visuals for Croatian destinations based on destination, style, and mood.
+
+![Image generator](docs/screenshots/image-generator.png)
+
+### Getting to Croatia route briefing
+
+The route briefing tab generates a practical written route plan and an audio narration for traveling from an origin city or country to Croatia.
+
+![Route briefing](docs/screenshots/route-briefing.png)
+
 ## Tech stack
 
 - Python

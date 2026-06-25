@@ -7,6 +7,7 @@ from openai import OpenAI
 from database import get_packages_by_destination, initialize_database
 from tools import TOOLS, call_tool
 from image_generation import generate_destination_image
+from route_planner import generate_route_briefing
 
 
 load_dotenv()
@@ -209,6 +210,104 @@ with gr.Blocks(title="Croatia Travel AI Assistant") as demo:
             fn=generate_destination_image,
             inputs=[destination_input, style_input, mood_input],
             outputs=image_output,
+        )
+
+    with gr.Tab("Getting to Croatia"):
+        gr.Markdown(
+            "Generate a practical route briefing and audio explanation for getting to Croatia."
+        )
+
+        origin_input = gr.Textbox(
+            label="Origin city or country",
+            placeholder="Example: Warsaw, Poland",
+        )
+
+        destination_route_input = gr.Textbox(
+            label="Destination in Croatia",
+            placeholder="Example: Split, Dubrovnik, Krk, Zadar, Istria",
+        )
+
+        transport_preference_input = gr.Dropdown(
+            label="Transport preference",
+            choices=[
+                "flexible / best overall option",
+                "car",
+                "flight",
+                "bus",
+                "train",
+                "budget-friendly",
+                "comfortable",
+                "scenic route",
+            ],
+            value="flexible / best overall option",
+        )
+
+        travel_style_input = gr.Dropdown(
+            label="Travel style",
+            choices=[
+                "cheapest possible",
+                "fastest possible",
+                "comfortable and simple",
+                "family-friendly",
+                "scenic and relaxed",
+                "balanced",
+            ],
+            value="balanced",
+        )
+
+        route_voice_input = gr.Dropdown(
+            label="Voice",
+            choices=[
+                "alloy",
+                "ash",
+                "ballad",
+                "coral",
+                "echo",
+                "fable",
+                "nova",
+                "onyx",
+                "sage",
+                "shimmer",
+                "verse",
+            ],
+            value="coral",
+        )
+
+        route_tone_input = gr.Dropdown(
+            label="Audio tone",
+            choices=[
+                "warm and friendly",
+                "calm and relaxing",
+                "enthusiastic and energetic",
+                "luxury travel consultant",
+                "clear and informative",
+            ],
+            value="clear and informative",
+        )
+
+        route_button = gr.Button("Generate route briefing")
+
+        route_text_output = gr.Textbox(
+            label="Route briefing",
+            lines=12,
+        )
+
+        route_audio_output = gr.Audio(
+            label="Audio route briefing",
+            type="filepath",
+        )
+
+        route_button.click(
+            fn=generate_route_briefing,
+            inputs=[
+                origin_input,
+                destination_route_input,
+                transport_preference_input,
+                travel_style_input,
+                route_voice_input,
+                route_tone_input,
+            ],
+            outputs=[route_text_output, route_audio_output],
         )
 
 

@@ -13,3 +13,4 @@ wheels/
 data/*.db
 
 generated_images/
+generated_audio/

@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from database import get_packages_by_destination, initialize_database
+from tools import TOOLS, call_tool
 
 
 load_dotenv()
@@ -20,32 +21,13 @@ You are Croatia Travel AI Assistant.
 You help users plan trips to Croatia.
 You can suggest places, itineraries, activities, local tips, and practical travel advice.
 
-You may receive relevant information from a local SQLite travel packages database.
-When database information is provided, use it as the main source for package details and prices.
-If no database information is provided, do not invent exact package prices.
+You have access to a local SQLite travel packages database through tools.
+When the user asks about available packages, prices, duration, or travel styles for a destination, use the tool.
+When tool results are available, use them as the main source of truth.
+Do not invent exact package prices if they are not provided by the tool.
 If you are unsure, say that you are not sure instead of inventing details.
 Keep answers friendly, practical, and clear.
 """
-
-
-KNOWN_DESTINATIONS = ["Split", "Dubrovnik", "Krk", "Zadar", "Istria"]
-
-
-def find_destination_in_message(message):
-    """
-    Very simple destination detection.
-
-    Later, OpenAI tool calling will make this smarter.
-    Check whether one of our known destinations appears in the user message.
-    """
-
-    message_lower = message.lower()
-
-    for destination in KNOWN_DESTINATIONS:
-        if destination.lower() in message_lower:
-            return destination
-
-    return None
 
 
 def extract_text_from_gradio_content(content):
@@ -121,39 +103,46 @@ def chat(message, history):
     """
     Chatbot function used by Gradio.
 
-    The assistant receives previous conversation history, optional SQLite context,
-    and the current user message.
+    The assistant receives previous conversation history and the current user message.
+    If needed, the model can call a SQLite-backed tool to get travel package data.
     """
 
     messages = convert_history_to_openai_messages(history)
-
-    destination = find_destination_in_message(message)
-    database_context = ""
-
-    if destination:
-        package_info = get_packages_by_destination(destination)
-        database_context = f"""
-Relevant information from the local SQLite travel packages database:
-
-{package_info}
-"""
-
-    enhanced_message = f"""
-User message:
-{message}
-
-{database_context}
-"""
-
-    messages.append({"role": "user", "content": enhanced_message})
+    messages.append({"role": "user", "content": message})
 
     response = client.responses.create(
         model="gpt-5.5",
         instructions=SYSTEM_PROMPT,
         input=messages,
+        tools=TOOLS,
     )
 
-    return response.output_text
+    messages += response.output
+
+    tool_calls = [item for item in response.output if item.type == "function_call"]
+
+    if not tool_calls:
+        return response.output_text
+
+    for tool_call in tool_calls:
+        tool_result = call_tool(tool_call.name, tool_call.arguments)
+
+        messages.append(
+            {
+                "type": "function_call_output",
+                "call_id": tool_call.call_id,
+                "output": tool_result,
+            }
+        )
+
+    final_response = client.responses.create(
+        model="gpt-5.5",
+        instructions=SYSTEM_PROMPT,
+        input=messages,
+        tools=TOOLS,
+    )
+
+    return final_response.output_text
 
 
 demo = gr.ChatInterface(

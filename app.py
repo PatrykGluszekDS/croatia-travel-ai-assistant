@@ -2,18 +2,14 @@ import os
 
 import gradio as gr
 from dotenv import load_dotenv
-from openai import OpenAI
 
 from database import get_packages_by_destination, initialize_database
-from tools import TOOLS, call_tool
 from image_generation import generate_destination_image
 from route_planner import generate_route_briefing
+from llm_clients import chat_with_openai, chat_with_ollama
 
 
 load_dotenv()
-
-client = OpenAI()
-
 initialize_database()
 
 
@@ -101,62 +97,52 @@ def convert_history_to_openai_messages(history):
     return messages
 
 
-def chat(message, history):
+def chat(message, history, model_provider):
     """
     Chatbot function used by Gradio.
 
-    The assistant receives previous conversation history and the current user message.
-    If needed, the model can call a SQLite-backed tool to get travel package data.
+    The user can choose between:
+    - OpenAI: stronger model with SQLite tool calling
+    - Ollama: local model without tool calling
     """
 
     messages = convert_history_to_openai_messages(history)
     messages.append({"role": "user", "content": message})
 
-    response = client.responses.create(
-        model="gpt-5.5",
-        instructions=SYSTEM_PROMPT,
-        input=messages,
-        tools=TOOLS,
-    )
+    if model_provider == "OpenAI":
+        return chat_with_openai(messages, SYSTEM_PROMPT)
 
-    messages += response.output
-
-    tool_calls = [item for item in response.output if item.type == "function_call"]
-
-    if not tool_calls:
-        return response.output_text
-
-    for tool_call in tool_calls:
-        tool_result = call_tool(tool_call.name, tool_call.arguments)
-
-        messages.append(
-            {
-                "type": "function_call_output",
-                "call_id": tool_call.call_id,
-                "output": tool_result,
-            }
+    if model_provider == "Ollama":
+        return chat_with_ollama(
+            messages=messages,
+            system_prompt=SYSTEM_PROMPT,
+            model="llama3.2:1b",
         )
 
-    final_response = client.responses.create(
-        model="gpt-5.5",
-        instructions=SYSTEM_PROMPT,
-        input=messages,
-        tools=TOOLS,
-    )
+    return "Unknown model provider selected."
 
-    return final_response.output_text
 
+model_provider_input = gr.Dropdown(
+    label="Model provider",
+    choices=["OpenAI", "Ollama"],
+    value="OpenAI",
+)
 
 chat_demo = gr.ChatInterface(
     fn=chat,
     title="Croatia Travel AI Assistant",
-    description="Ask for Croatia travel ideas, itineraries, and practical tips.",
+    description=(
+        "Ask for Croatia travel ideas, itineraries, and practical tips. "
+        "OpenAI mode supports SQLite tool calling. Ollama mode runs locally."
+    ),
     examples=[
-        "Plan me a 3-day trip to Split.",
-        "What should I do on Krk island?",
-        "Suggest a romantic weekend in Croatia.",
-        "I want hidden gems near Zadar.",
+        ["Plan me a 3-day trip to Split.", "OpenAI"],
+        ["What should I do on Krk island?", "OpenAI"],
+        ["Suggest a romantic weekend in Croatia.", "OpenAI"],
+        ["I want hidden gems near Zadar.", "OpenAI"],
+        ["Plan me a simple 2-day trip to Split using local Ollama.", "Ollama"],
     ],
+    additional_inputs=[model_provider_input],
 )
 
 

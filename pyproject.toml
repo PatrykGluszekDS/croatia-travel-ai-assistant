@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "gradio>=6.19.0",
+    "ollama>=0.6.2",
     "openai>=2.43.0",
     "pillow>=12.2.0",
     "python-dotenv>=1.2.2",

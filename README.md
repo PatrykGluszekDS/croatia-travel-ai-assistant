@@ -246,11 +246,17 @@ Travel style: balanced
 
 ## Possible improvements
 
-- Add screenshots to the README
 - Add more realistic sample travel packages
 - Improve the database schema
 - Add saved user preferences
-- Add optional Ollama/local model support
-- Add tests for database and tool functions
-- Add deployment instructions
 
+
+## Running tests
+
+This project includes basic tests for the SQLite database and tool-calling logic.
+
+Run tests with:
+
+```bash
+uv run pytest
+```

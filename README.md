@@ -36,19 +36,18 @@ The chat assistant supports two model providers:
 
 OpenAI mode can use the SQLite database through tool calling. Ollama mode is used for local text generation and does not use the database tools.
 
-### SQLite travel package database
+### SQLite travel database
 
-The project includes a local SQLite database with sample Croatia travel packages.
+The project includes a local SQLite database with sample Croatia travel data.
 
-The database contains example packages for destinations such as:
+The database uses a small relational schema with tables for:
 
-- Split
-- Dubrovnik
-- Krk
-- Zadar
-- Istria
+- destinations
+- travel packages
+- activities
+- transport options
 
-The assistant can search the database by destination, region, travel style, duration, and maximum price.
+The assistant can use OpenAI tool calling to search packages, explain destinations, suggest activities, and provide general transport guidance.
 
 ### OpenAI tool calling
 
@@ -283,10 +282,11 @@ uv run pytest
 
 ## Possible improvements
 
-* Add more realistic travel package data
-* Improve the database schema with more destinations, seasons, and transport options
-* Add saved user preferences
-* Add tool calling support for Ollama mode
-* Add external APIs for live transport information
-* Add deployment instructions
-* Refactor the app into a larger package structure
+- Add more realistic travel package data
+- Add saved user preferences
+- Add tool calling support for Ollama mode
+- Add external APIs for live transport information
+- Add deployment instructions
+- Refactor the app into a larger package structure
+- Add more destinations, activities, and transport options
+- Add richer seasonal and budget information

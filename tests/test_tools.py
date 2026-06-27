@@ -29,3 +29,36 @@ def test_call_tool_unknown_tool():
     result = call_tool("unknown_tool", "{}")
 
     assert "Unknown tool" in result
+
+
+def test_call_tool_get_destination_overview():
+    initialize_database()
+
+    arguments = json.dumps({"destination": "Krk"})
+
+    result = call_tool("get_destination_overview", arguments)
+
+    assert "Krk" in result
+    assert "Best season" in result
+
+
+def test_call_tool_get_activities_for_destination():
+    initialize_database()
+
+    arguments = json.dumps({"destination": "Istria"})
+
+    result = call_tool("get_activities_for_destination", arguments)
+
+    assert "Istria" in result
+    assert "Activity" in result
+
+
+def test_call_tool_get_transport_options():
+    initialize_database()
+
+    arguments = json.dumps({"destination": "Split"})
+
+    result = call_tool("get_transport_options", arguments)
+
+    assert "Split" in result
+    assert "Transport type" in result

@@ -455,6 +455,149 @@ def search_travel_packages(
     return "\n\n".join(results)
 
 
+def get_destination_overview(destination):
+    """
+    Return general information about a Croatian destination.
+    """
+
+    initialize_database()
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT name, region, description, best_season, crowd_level
+            FROM destinations
+            WHERE LOWER(name) = LOWER(?)
+            """,
+            (destination,),
+        )
+
+        row = cursor.fetchone()
+
+    if not row:
+        return f"No destination overview found for {destination}."
+
+    name, region, description, best_season, crowd_level = row
+
+    return (
+        f"Destination: {name}\n"
+        f"Region: {region}\n"
+        f"Description: {description}\n"
+        f"Best season: {best_season}\n"
+        f"Crowd level: {crowd_level}"
+    )
+
+
+def get_activities_for_destination(destination, category=None):
+    """
+    Return activities for a destination, optionally filtered by category.
+    """
+
+    initialize_database()
+
+    query = """
+        SELECT
+            d.name,
+            a.name,
+            a.category,
+            a.description,
+            a.indoor_outdoor
+        FROM activities a
+        JOIN destinations d ON a.destination_id = d.id
+        WHERE LOWER(d.name) = LOWER(?)
+    """
+
+    params = [destination]
+
+    if category:
+        query += " AND LOWER(a.category) LIKE LOWER(?)"
+        params.append(f"%{category}%")
+
+    query += " ORDER BY a.category, a.name"
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+
+    if not rows:
+        if category:
+            return f"No {category} activities found for {destination}."
+        return f"No activities found for {destination}."
+
+    results = []
+
+    for row in rows:
+        destination_name, activity_name, category, description, indoor_outdoor = row
+
+        results.append(
+            f"Destination: {destination_name}\n"
+            f"Activity: {activity_name}\n"
+            f"Category: {category}\n"
+            f"Description: {description}\n"
+            f"Type: {indoor_outdoor}"
+        )
+
+    return "\n\n".join(results)
+
+
+def get_transport_options(destination, origin_region=None, transport_type=None):
+    """
+    Return transport options for reaching a Croatian destination.
+    """
+
+    initialize_database()
+
+    query = """
+        SELECT
+            d.name,
+            t.origin_region,
+            t.transport_type,
+            t.description,
+            t.approximate_duration
+        FROM transport_options t
+        JOIN destinations d ON t.destination_id = d.id
+        WHERE LOWER(d.name) = LOWER(?)
+    """
+
+    params = [destination]
+
+    if origin_region:
+        query += " AND LOWER(t.origin_region) LIKE LOWER(?)"
+        params.append(f"%{origin_region}%")
+
+    if transport_type:
+        query += " AND LOWER(t.transport_type) = LOWER(?)"
+        params.append(transport_type)
+
+    query += " ORDER BY t.transport_type"
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+
+    if not rows:
+        return f"No transport options found for {destination}."
+
+    results = []
+
+    for row in rows:
+        destination_name, origin_region, transport_type, description, approximate_duration = row
+
+        results.append(
+            f"Destination: {destination_name}\n"
+            f"Origin region: {origin_region}\n"
+            f"Transport type: {transport_type}\n"
+            f"Description: {description}\n"
+            f"Approximate duration: {approximate_duration}"
+        )
+
+    return "\n\n".join(results)
+
+
 if __name__ == "__main__":
     initialize_database()
 
@@ -464,3 +607,14 @@ if __name__ == "__main__":
     print()
     print("Romantic packages:")
     print(search_travel_packages(travel_style="romantic"))
+    print()
+    print("Destination overview:")
+    print(get_destination_overview("Krk"))
+
+    print()
+    print("Activities:")
+    print(get_activities_for_destination("Istria"))
+
+    print()
+    print("Transport:")
+    print(get_transport_options("Split", origin_region="Europe"))

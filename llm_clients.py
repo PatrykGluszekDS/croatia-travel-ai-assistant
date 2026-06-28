@@ -55,7 +55,7 @@ def chat_with_ollama(messages, system_prompt, model="llama3.2:1b"):
     Chat with a local Ollama model.
 
     This version uses local text generation only.
-    It does not use our SQLite tools.
+    It does not use our SQLite tools yet.
     """
 
     ollama_messages = [{"role": "system", "content": system_prompt}]
@@ -67,10 +67,18 @@ def chat_with_ollama(messages, system_prompt, model="llama3.2:1b"):
         if role in ["user", "assistant"] and isinstance(content, str):
             ollama_messages.append({"role": role, "content": content})
 
-    response = ollama_chat(
-        model=model,
-        messages=ollama_messages,
-        stream=False,
-    )
+    try:
+        response = ollama_chat(
+            model=model,
+            messages=ollama_messages,
+            stream=False,
+        )
 
-    return response["message"]["content"]
+        return response["message"]["content"]
+
+    except Exception:
+        return (
+            "Ollama is not available in this environment. "
+            "Ollama mode is intended for local use with Ollama running on your machine. "
+            "Please switch to OpenAI mode in the deployed app."
+        )

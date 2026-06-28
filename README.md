@@ -18,6 +18,11 @@ This project demonstrates practical LLM application development, including:
 * writing basic tests with pytest
 * running automated tests with GitHub Actions
 
+## Live demo
+
+The app is deployed on Hugging Face Spaces:
+
+[Open Croatia Travel AI Assistant](https://huggingface.co/spaces/PatrykGluszekDS/croatia-travel-ai-assistant)
 
 ## Features
 

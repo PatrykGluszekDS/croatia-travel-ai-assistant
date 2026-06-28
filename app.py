@@ -153,6 +153,11 @@ chat_demo = gr.ChatInterface(
 with gr.Blocks(title="Croatia Travel AI Assistant") as demo:
     gr.Markdown("# Croatia Travel AI Assistant")
 
+    if os.getenv("DEMO_MODE", "false").lower() == "true":
+        gr.Markdown(
+        "⚠️ Public demo mode is enabled. Some expensive features, such as image or audio generation, may be limited to control API usage."
+    )
+
     with gr.Tab("Chat assistant"):
         chat_demo.render()
 
@@ -204,7 +209,8 @@ with gr.Blocks(title="Croatia Travel AI Assistant") as demo:
 
     with gr.Tab("Getting to Croatia"):
         gr.Markdown(
-            "Generate a practical route briefing and audio explanation for getting to Croatia."
+            """Generate a practical route briefing and audio explanation for getting to Croatia.
+            In public demo mode, audio generation may be disabled to control API usage."""
         )
 
         origin_input = gr.Textbox(

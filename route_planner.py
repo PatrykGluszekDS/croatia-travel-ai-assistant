@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import os
 
 from openai import OpenAI
 
@@ -81,6 +82,12 @@ def generate_route_briefing(
     Use clear pronunciation and natural pace.
     Make the route advice sound practical and easy to follow.
     """
+
+    if os.getenv("DEMO_MODE", "false").lower() == "true":
+        return (
+        route_text,
+        None,
+    )
 
     with client.audio.speech.with_streaming_response.create(
         model="gpt-4o-mini-tts",

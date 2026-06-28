@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 from pathlib import Path
+import os
 
 from openai import OpenAI
 
@@ -17,6 +18,13 @@ def generate_destination_image(destination, style, mood):
     - style: visual style, e.g. realistic, watercolor, vintage poster
     - mood: atmosphere, e.g. romantic, adventurous, relaxed
     """
+
+    if os.getenv("DEMO_MODE", "false").lower() == "true":
+        raise ValueError(
+        "Image generation is disabled in the public demo to control API costs. "
+        "Run the project locally with your own OpenAI API key to use this feature."
+    )
+
 
     IMAGE_OUTPUT_DIR.mkdir(exist_ok=True)
 

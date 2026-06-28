@@ -145,6 +145,17 @@ croatia-travel-ai-assistant/
 └── generated_audio/             # generated locally, not committed
 ```
 
+## Deployment notes
+
+The app can be run locally with uv or Docker.
+
+The Docker version is useful for deployment and can be used on platforms such as Hugging Face Spaces.
+
+In deployed environments, OpenAI features require `OPENAI_API_KEY` to be configured as an environment variable or secret.
+
+Ollama mode is intended for local use. It requires Ollama to be installed and running on the user's machine, so it may not be available in hosted deployments.
+
+
 ## Prerequisites
 
 To run the full project locally, you need:

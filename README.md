@@ -24,6 +24,32 @@ The app is deployed on Hugging Face Spaces:
 
 [Open Croatia Travel AI Assistant](https://huggingface.co/spaces/PatrykGluszekDS/croatia-travel-ai-assistant)
 
+## Public demo mode
+
+The Hugging Face Space is configured as a public demo version of the app.
+
+To control OpenAI API usage, some expensive features may be limited in the deployed version:
+
+* image generation may be disabled
+* audio generation may be disabled or limited
+* route briefing may return text without audio
+* OpenAI responses may be kept shorter
+
+The full version can still be run locally with your own OpenAI API key.
+
+This behavior can be controlled with the `DEMO_MODE` environment variable:
+
+```text
+DEMO_MODE=true
+```
+
+For local development, `DEMO_MODE` can be omitted or set to:
+
+```text
+DEMO_MODE=false
+```
+
+
 ## Features
 
 ### Chat assistant
@@ -158,7 +184,10 @@ The Docker version is useful for deployment and can be used on platforms such as
 
 In deployed environments, OpenAI features require `OPENAI_API_KEY` to be configured as an environment variable or secret.
 
+The public Hugging Face demo can use `DEMO_MODE=true` to limit expensive API features and protect OpenAI credits.
+
 Ollama mode is intended for local use. It requires Ollama to be installed and running on the user's machine, so it may not be available in hosted deployments.
+
 
 
 ## Prerequisites
@@ -295,6 +324,7 @@ uv run pytest
 - Generated images and audio are stored locally and ignored by Git.
 - Ollama mode currently supports local chat only and does not use SQLite tool calling.
 - The quality of Ollama responses depends on the local model. The default `llama3.2:1b` model is lightweight but weaker than larger models.
+- The public Hugging Face demo may run in demo mode, so image generation or audio generation can be limited to control API usage.
 
 ## Possible improvements
 
